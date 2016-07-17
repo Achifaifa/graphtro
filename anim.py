@@ -1,9 +1,22 @@
 import numpy as np
 from matplotlib import pyplot as plt
 from matplotlib import animation
-import math
+import math, random
 
 grid=[[0 for i in range(50)] for j in range(50)]
+text="""
+Ever seen metaballs done in matplotlib?
+                      Ever seen a python program written in esperanto?
+                      Look at the awesome axis, it's off the charts!!
+                      Greetings go to:   
+    stage7
+    halcy & SVatG
+    Klon, Marcan, Imobilis
+    Euskal Encounter crew & scene people
+                      I'll have a proper demo next time, promise! ;P
+""".replace("\n", "")
+
+needed_frames=(len(text)*3)+150
 
 meatt=1.4
 meatgoo=0.95
@@ -23,10 +36,22 @@ def meatballs(grid,step):
       except: pass
   return grid
 
+def scroll(text, step):
+
+  base=["" for i in range(50-step)]
+  txt=[i for i in text[:step]]
+  return base+txt
+
+
+
 fig=plt.figure()
 ax = plt.axes(xlim=(0, 50), ylim=(0,50))
 line, = ax.plot([], [], lw=2)
-plt.title('default: no edges')
+plt.title('Graphtro :D')
+plt.ylabel('Awesome ->')
+plt.xlabel('->')
+plt.xticks(range(50), [""])
+plt.yticks(range(2,48), ["_" for i in range(50)])
 
 def init():
     line.set_data([], [])
@@ -37,9 +62,11 @@ def animate(i):
   grid=meatballs(grid, i)
   Z=np.array(grid).astype(np.int)
   c = plt.pcolor(Z)
+  plt.xticks(range(50), scroll("tis a test", int(math.floor(i/3))))
+  awesomeh=random.randint(5,int(math.floor(30+20*math.sin(i/4))))
+  plt.yticks(range(1,awesomeh), ["_" for i in range(50)])
   return c
 
 # call the animator.  blit=True means only re-draw the parts that have changed.
-anim = animation.FuncAnimation(fig, animate, init_func=init,
-                               frames=60, interval=20, blit=True)
-anim.save('graphtro.mp4', fps=30, extra_args=['-vcodec', 'libx264'])
+anim = animation.FuncAnimation(fig, animate, init_func=init, frames=60, interval=20, blit=True)
+anim.save('./output/graphtro.mp4', fps=30, extra_args=['-vcodec', 'libx264'])
