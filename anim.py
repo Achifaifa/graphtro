@@ -15,36 +15,31 @@ def meatballs(grid,step):
   mbC=[25+math.sin((meatang*2)+100)*20,25+math.cos(meatang+50)*20]
   for i in range(50):
     for j in range(50):
-      if (5/math.pow(math.sqrt(math.pow(mbA[0]-j,2)+math.pow(mbA[1]-i,2)),meatgoo))+ (9/math.pow(math.sqrt(math.pow(mbB[0]-j,2)+math.pow(mbB[1]-i,2)),meatgoo))+ (3/math.pow(math.sqrt(math.pow(mbC[0]-j,2)+math.pow(mbC[1]-i,2)),meatgoo))>meatt:
-        grid[j][i]="10"
-
+      try:
+        if (5/math.pow(math.sqrt(math.pow(mbA[0]-j,2)+math.pow(mbA[1]-i,2)),meatgoo))+ (9/math.pow(math.sqrt(math.pow(mbB[0]-j,2)+math.pow(mbB[1]-i,2)),meatgoo))+ (3/math.pow(math.sqrt(math.pow(mbC[0]-j,2)+math.pow(mbC[1]-i,2)),meatgoo))>meatt:
+          grid[j][i]="10"
+        else: 
+          grid[j][i]="0"
+      except: pass
   return grid
 
-# First set up the figure, the axis, and the plot element we want to animate
 fig=plt.figure()
-line, =plt.subplot(1, 1, 1)
+ax = plt.axes(xlim=(0, 50), ylim=(0,50))
+line, = ax.plot([], [], lw=2)
 plt.title('default: no edges')
 
-# initialization function: plot the background of each frame
 def init():
     line.set_data([], [])
     return line,
 
-# animation function.  This is called sequentially
 def animate(i):
+  global grid
   grid=meatballs(grid, i)
-  Z=numpy.array(grid).astype(numpy.int)
+  Z=np.array(grid).astype(np.int)
   c = plt.pcolor(Z)
-  line.set_data(x, y)
-  return line,
+  return c
 
 # call the animator.  blit=True means only re-draw the parts that have changed.
 anim = animation.FuncAnimation(fig, animate, init_func=init,
-                               frames=200, interval=20, blit=True)
-
-# save the animation as an mp4.  This requires ffmpeg or mencoder to be
-# installed.  The extra_args ensure that the x264 codec is used, so that
-# the video can be embedded in html5.  You may need to adjust this for
-# your system: for more information, see
-# http://matplotlib.sourceforge.net/api/animation_api.html
+                               frames=60, interval=20, blit=True)
 anim.save('graphtro.mp4', fps=30, extra_args=['-vcodec', 'libx264'])
