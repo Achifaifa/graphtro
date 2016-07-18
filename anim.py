@@ -1,6 +1,7 @@
 import numpy as np
 from matplotlib import pyplot as plt
 from matplotlib import animation
+from matplotlib.colors import LinearSegmentedColormap
 import math, random
 
 grid=[[0 for i in range(50)] for j in range(50)]
@@ -22,51 +23,77 @@ meatt=1.4
 meatgoo=0.95
 def meatballs(grid,step):
 
+  step+=1
   meatang=3.14*step/150;
   mbA=[25+math.cos(meatang*5)*20,25+math.sin(meatang*2)*20]
   mbB=[25+math.sin(meatang*2.6)*20,25+math.cos(meatang*2.0)*20]
   mbC=[25+math.sin((meatang*2)+100)*20,25+math.cos(meatang+50)*20]
   for i in range(50):
     for j in range(50):
-      try:
-        if (5/math.pow(math.sqrt(math.pow(mbA[0]-j,2)+math.pow(mbA[1]-i,2)),meatgoo))+ (9/math.pow(math.sqrt(math.pow(mbB[0]-j,2)+math.pow(mbB[1]-i,2)),meatgoo))+ (3/math.pow(math.sqrt(math.pow(mbC[0]-j,2)+math.pow(mbC[1]-i,2)),meatgoo))>meatt:
-          grid[j][i]="10"
-        else: 
-          grid[j][i]="0"
-      except: pass
+      if (5/math.pow(math.sqrt(math.pow(mbA[0]-j,2)+math.pow(mbA[1]-i,2)),meatgoo))+ (9/math.pow(math.sqrt(math.pow(mbB[0]-j,2)+math.pow(mbB[1]-i,2)),meatgoo))+ (3/math.pow(math.sqrt(math.pow(mbC[0]-j,2)+math.pow(mbC[1]-i,2)),meatgoo))>meatt:
+        grid[j][i]="10"
+      else: 
+        grid[j][i]="0"
   return grid
 
 def scroll(text, step):
 
   base=["" for i in range(50-step)]
-  txt=[i for i in text[:step]]
+  stp=0 if step-50<0 else step
+  txt=[i for i in text[stp:step]]
   return base+txt
 
+#0f380f Darkest Green   Hex: #0f380f RGB: 15, 56, 15
+#306230 Dark Green      Hex: #306230 RGB: 48, 98, 48
+#8bac0f Light Green     Hex: #8bac0f RGB: 139, 172, 15
+#9bbc0f Lightest Green  Hex: #9bbc0f RGB: 155, 188, 15
 
+cdict={'red':   ((0.0, 0.0, 0.15),
+                 (0.25, 0.15, 0.48),
+                 (0.50, 0.48, 0.139),
+                 (0.75, 0.139, 0.155),
+                 (1.00, 0.155, 0.155)),
+
+       'green': ((0.0, 0.0, 0.56),
+                 (0.25, 0.56, 0.98),
+                 (0.50, 0.98, 0.172),
+                 (0.75, 0.172, 0.188),
+                 (1.00, 0.188, 0.188)),
+
+       'blue':  ((0.0, 0.0, 0.15),
+                 (0.25, 0.15, 0.48),
+                 (0.50, 0.48, 0.15),
+                 (0.75, 0.15, 0.15),
+                 (1.00, 0.15, 0.15)),
+      }
+
+plt.register_cmap(name='gbmap', data=cdict)
 
 fig=plt.figure()
 ax = plt.axes(xlim=(0, 50), ylim=(0,50))
 line, = ax.plot([], [], lw=2)
 plt.title('Graphtro :D')
 plt.ylabel('Awesome ->')
-plt.xlabel('->')
 plt.xticks(range(50), [""])
 plt.yticks(range(2,48), ["_" for i in range(50)])
 
 def init():
-    line.set_data([], [])
-    return line,
+  line.set_data([], [])
+  return line,
 
 def animate(i):
   global grid
   grid=meatballs(grid, i)
   Z=np.array(grid).astype(np.int)
-  c = plt.pcolor(Z)
-  plt.xticks(range(50), scroll("tis a test", int(math.floor(i/3))))
-  awesomeh=random.randint(5,int(math.floor(30+20*math.sin(i/4))))
-  plt.yticks(range(1,awesomeh), ["_" for i in range(50)])
+  c=plt.pcolor(Z, cmap='gbmap')
+
+  plt.xticks(range(50), scroll(text, int(math.floor(i/3)) ))
+  awesomeh=random.randint(5, int(math.floor(35+15*math.sin(i/4))))
+  plt.yticks(range(1,50), ["_" for i in range(awesomeh)])
   return c
 
 # call the animator.  blit=True means only re-draw the parts that have changed.
-anim = animation.FuncAnimation(fig, animate, init_func=init, frames=60, interval=20, blit=True)
+anim = animation.FuncAnimation(fig, animate, init_func=init, frames=2, interval=20, blit=True)
 anim.save('./output/graphtro.mp4', fps=30, extra_args=['-vcodec', 'libx264'])
+
+#ffmpeg -i input.mp4 -i input.mp3 -c copy -map 0:0 -map 1:0 output.mp4
