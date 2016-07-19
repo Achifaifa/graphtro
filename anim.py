@@ -2,7 +2,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 from matplotlib import animation
 from matplotlib.colors import LinearSegmentedColormap
-import math, random
+import itertools, math, random
 
 grid=[[0 for i in range(50)] for j in range(50)]
 text="""
@@ -12,11 +12,11 @@ Ever seen metaballs done in matplotlib?
     stage7 | Yawin | halcy & SVatG | Klon | Marcan | Imobilis | Euskal Encounter crew & scene people
                           I'll have a proper demo next time, promise! ;P
 """.replace("\n", "")
-
 needed_frames=(len(text)*3)+150
 
-cube=[(-10,10,-10),(10,10,-10),(10,-10,-10),(-10,-10,-10),
-      (-10,10,10), (10,10,10), (10,-10,10), (-10,-10,10) ]
+cube=[[(i,j,k),(i,k,j),(k,i,j)] for i in [-10, 10] for j in [-10, 10] for k in range(-10,11)]
+cube=list(set(list(itertools.chain(*cube))))
+cube=[(i[0], i[1], i[2]+10) for i in cube]
 
 def rotate_3dpoint(p, angle, ax):
   r = [0, 0, 0]
@@ -33,8 +33,7 @@ def rotate_3dpoint(p, angle, ax):
   r[2]+=(ca+(1-ca)*ax[2]*ax[2])*p[2]
   return r
 
-def rotate_object(obj, angle, axis):
-  """Rotate an object around given axis."""
+def rotate(obj, angle, axis):
   for n,i in enumerate(obj):
       obj[n] = rotate_3dpoint(i, angle, axis)
 
@@ -43,9 +42,9 @@ def rotcube(step):
   step=int(math.floor(step/5))
   global cube
 
-  rotate_object(cube, (0.5+0.5*math.sin(step/35))/30  , (0,1,0))
-  rotate_object(cube, (0.75+0.75*math.cos(step/50))/30, (0,0,1))
-  rotate_object(cube, (1+math.sin(step/30))/30        , (1,0,0))
+  rotate(cube, (0.5+0.5*math.sin(step/35))/30  , (0,1,0))
+  rotate(cube, (0.75+0.75*math.cos(step/50))/30, (0,0,1))
+  rotate(cube, (1+math.sin(step/30))/30        , (1,0,0))
   grid=[[0 for i in range(50)] for j in range(50)]
   tempvert=[tuple(j+25 for j in i) for i in cube]
   for i in tempvert: grid[int(i[0])][int(i[1])]=i[2]
@@ -116,8 +115,8 @@ def init():
 
 def animate(i):
   global grid
-  # grid=meatballs(i)
-  grid=rotcube(i)
+  if i<420: grid=meatballs(i)
+  else:     grid=rotcube(i)
   Z=np.array(grid).astype(np.int)
   c=plt.pcolor(Z, cmap='gbmap')
 
@@ -127,7 +126,7 @@ def animate(i):
   return c
 
 # call the animator.  blit=True means only re-draw the parts that have changed.
-anim = animation.FuncAnimation(fig, animate, init_func=init, frames=60, interval=20, blit=True)
+anim = animation.FuncAnimation(fig, animate, init_func=init, frames=10, interval=20, blit=True)
 anim.save('./output/graphtro.mp4', fps=30, extra_args=['-vcodec', 'libx264'])
 
 #ffmpeg -i input.mp4 -i input.mp3 -c copy -map 0:0 -map 1:0 output.mp4
