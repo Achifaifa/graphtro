@@ -4,6 +4,7 @@ from matplotlib import animation
 from matplotlib.colors import LinearSegmentedColormap
 import math, random
 
+#Palette taken from the internet. May not be accurate
 #0f380f Darkest Green   Hex: #0f380f RGB: 15, 56, 15
 #306230 Dark Green      Hex: #306230 RGB: 48, 98, 48
 #8bac0f Light Green     Hex: #8bac0f RGB: 139, 172, 15
